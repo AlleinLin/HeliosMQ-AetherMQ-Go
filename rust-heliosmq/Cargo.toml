@@ -1,0 +1,124 @@
+[package]
+name = "heliosmq"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["HeliosMQ Team <team@heliosmq.io>"]
+license = "Apache-2.0"
+description = "Next-generation cloud-native unified messaging and event streaming platform"
+repository = "https://github.com/heliosmq/heliosmq"
+keywords = ["messaging", "message-queue", "event-streaming", "cloud-native", "distributed"]
+categories = ["network-programming", "asynchronous", "web-programming"]
+
+[[bin]]
+name = "helios-broker"
+path = "src/bin/broker.rs"
+
+[[bin]]
+name = "helios-controller"
+path = "src/bin/controller.rs"
+
+[[bin]]
+name = "helios-gateway"
+path = "src/bin/gateway.rs"
+
+[dependencies]
+tokio = { version = "1.38", features = ["full", "tracing"] }
+tokio-util = { version = "0.7", features = ["codec", "io", "time"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+
+tonic = { version = "0.12", features = ["tls", "gzip", "zstd"] }
+prost = "0.13"
+prost-types = "0.13"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.24"
+opentelemetry = { version = "0.23", features = ["trace", "metrics"] }
+opentelemetry-otlp = { version = "0.16", features = ["trace", "metrics", "grpc-tonic"] }
+opentelemetry-semantic-conventions = "0.15"
+
+prometheus = { version = "0.13", features = ["process"] }
+metrics = "0.23"
+metrics-exporter-prometheus = "0.15"
+
+bytes = "1.6"
+memmap2 = "0.9"
+parking_lot = { version = "0.12", features = ["send_guard", "arc_lock"] }
+crossbeam = { version = "0.8", features = ["crossbeam-channel", "crossbeam-queue"] }
+dashmap = { version = "6.0", features = ["rayon"] }
+ahash = "0.8"
+hashbrown = { version = "0.14", features = ["rayon", "serde"] }
+
+zstd = "0.13"
+lz4_flex = "0.11"
+snap = "1.1"
+
+thiserror = "1.0"
+anyhow = "1.0"
+
+uuid = { version = "1.8", features = ["v7", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+config = "0.14"
+clap = { version = "4.5", features = ["derive", "env"] }
+
+futures = "0.3"
+async-trait = "0.1"
+pin-project-lite = "0.2"
+
+socket2 = { version = "0.5", features = ["all"] }
+num_cpus = "1.16"
+
+rocksdb = { version = "0.22", features = ["lz4", "zstd"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+io-uring = { version = "0.6", optional = true }
+libc = "0.2"
+
+[features]
+default = ["tiered-storage"]
+tiered-storage = []
+io-uring = ["dep:io-uring"]
+jemalloc = ["tikv-jemallocator"]
+
+[dependencies.tikv-jemallocator]
+version = "0.6"
+optional = true
+features = ["unprefixed_malloc_on_supported_platforms", "profiling"]
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
+proptest = "1.4"
+tempfile = "3.10"
+rand = "0.8"
+
+[[bench]]
+name = "throughput"
+harness = false
+
+[[bench]]
+name = "latency"
+harness = false
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+opt-level = 3
+strip = true
+
+[profile.release-with-debug]
+inherits = "release"
+debug = true
+strip = false
+
+[profile.dev]
+opt-level = 1
+
+[profile.bench]
+inherits = "release"
+debug = true

@@ -1,0 +1,30 @@
+pub mod config;
+pub mod common;
+pub mod metadata;
+pub mod storage;
+pub mod broker;
+pub mod controller;
+pub mod gateway;
+pub mod raft;
+pub mod delay;
+pub mod dlq;
+pub mod metrics;
+pub mod protocol;
+pub mod tiered;
+pub mod transaction;
+pub mod tracing;
+pub mod kafka;
+pub mod schema;
+
+pub use common::{Message, MessageBatch, TopicMetadata, PartitionMetadata};
+pub use config::{BrokerConfig, ControllerConfig, GatewayConfig};
+pub use broker::Broker;
+pub use controller::Controller;
+pub use gateway::Gateway;
+pub use tiered::{TieredStorage, TieredStorageConfig, StorageClass};
+pub use transaction::{TransactionCoordinator, TransactionConfig, TransactionState};
+pub use tracing::{MessageTracer, TraceConfig, TraceEventType};
+pub use schema::{SchemaRegistry, SchemaConfig, SchemaType, CompatibilityMode};
+
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const NAME: &str = "HeliosMQ";
